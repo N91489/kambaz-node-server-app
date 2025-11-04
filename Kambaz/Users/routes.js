@@ -26,8 +26,13 @@ export default function UserRoutes(app, db) {
   };
 
   const signout = (req, res) => {
-    req.session.destroy();
-    res.sendStatus(200);
+    req.session.destroy((err) => {
+      if (err) {
+        res.status(500).json({ message: "Could not sign out" });
+      } else {
+        res.sendStatus(200);
+      }
+    });
   };
 
   const profile = (req, res) => {
@@ -51,13 +56,22 @@ export default function UserRoutes(app, db) {
   };
 
   const findAllUsers = (req, res) => {
-    const users = dao.findAllUsers();
-    res.json(users);
+    try {
+      const users = dao.findAllUsers();
+      res.json(users);
+    } catch (error) {
+      console.error("Error finding users:", error);
+      res.status(500).json({ message: "Error retrieving users" });
+    }
   };
 
   const findUserById = (req, res) => {
     const user = dao.findUserById(req.params.userId);
-    res.json(user);
+    if (user) {
+      res.json(user);
+    } else {
+      res.status(404).json({ message: "User not found" });
+    }
   };
 
   const deleteUser = (req, res) => {
@@ -65,7 +79,12 @@ export default function UserRoutes(app, db) {
     res.sendStatus(200);
   };
 
-  app.post("/api/users", dao.createUser);
+  const createUser = (req, res) => {
+    const newUser = dao.createUser(req.body);
+    res.json(newUser);
+  };
+
+  app.post("/api/users", createUser);
   app.get("/api/users", findAllUsers);
   app.get("/api/users/:userId", findUserById);
   app.put("/api/users/:userId", updateUser);
