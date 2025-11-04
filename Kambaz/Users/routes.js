@@ -56,22 +56,13 @@ export default function UserRoutes(app, db) {
   };
 
   const findAllUsers = (req, res) => {
-    try {
-      const users = dao.findAllUsers();
-      res.json(users);
-    } catch (error) {
-      console.error("Error finding users:", error);
-      res.status(500).json({ message: "Error retrieving users" });
-    }
+    const users = dao.findAllUsers();
+    res.json(users);
   };
 
   const findUserById = (req, res) => {
     const user = dao.findUserById(req.params.userId);
-    if (user) {
-      res.json(user);
-    } else {
-      res.status(404).json({ message: "User not found" });
-    }
+    res.json(user);
   };
 
   const deleteUser = (req, res) => {

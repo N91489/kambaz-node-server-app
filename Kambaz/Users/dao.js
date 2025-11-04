@@ -1,38 +1,36 @@
 import { v4 as uuidv4 } from "uuid";
 
 export default function UsersDao(db) {
+  let { users } = db;
+
   const createUser = (user) => {
     const newUser = { ...user, _id: uuidv4() };
-    db.users = [...db.users, newUser];
+    users = [...users, newUser];
+    db.users = users; // ← CRITICAL: Update db.users too!
     return newUser;
   };
 
-  const findAllUsers = () => {
-    console.log("Finding all users, count:", db.users.length);
-    return db.users;
-  };
+  const findAllUsers = () => users;
 
-  const findUserById = (userId) => {
-    return db.users.find((user) => user._id === userId);
-  };
+  const findUserById = (userId) => users.find((user) => user._id === userId);
 
-  const findUserByUsername = (username) => {
-    return db.users.find((user) => user.username === username);
-  };
+  const findUserByUsername = (username) =>
+    users.find((user) => user.username === username);
 
-  const findUserByCredentials = (username, password) => {
-    return db.users.find(
+  const findUserByCredentials = (username, password) =>
+    users.find(
       (user) => user.username === username && user.password === password
     );
-  };
 
   const updateUser = (userId, user) => {
-    db.users = db.users.map((u) => (u._id === userId ? user : u));
+    users = users.map((u) => (u._id === userId ? user : u));
+    db.users = users; // ← CRITICAL: Update db.users too!
     return user;
   };
 
   const deleteUser = (userId) => {
-    db.users = db.users.filter((u) => u._id !== userId);
+    users = users.filter((u) => u._id !== userId);
+    db.users = users; // ← CRITICAL: Update db.users too!
   };
 
   return {
